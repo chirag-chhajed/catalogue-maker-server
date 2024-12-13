@@ -1,14 +1,15 @@
 import { db } from "@/db/client.js";
-import { users } from "@/db/schema/hello.js";
+import { userOrganization, users } from "@/db/schema/hello.js";
 import { env } from "@/env.js";
 import { validateData } from "@/middlewares/validateSchema.js";
+import type { BasePayload } from "@/types/auth";
 import { logger } from "@/utils/logger.js";
-import { generateTokens } from "@/utils/token.js";
+import { generateBaseTokens, generateOrgTokens } from "@/utils/token.js";
 import {
   loginValidation,
   type LoginInput,
 } from "@/validations/authValidation.js";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Router, type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
 
@@ -17,7 +18,7 @@ export const authRouter = Router();
 authRouter.post(
   "/login",
   validateData(loginValidation),
-  async (req: Request<{}, {}, LoginInput>, res: Response) => {
+  async (req: Request<{}, {}, LoginInput>, res: Response): Promise<void> => {
     const { email, name } = req.body;
 
     try {
@@ -35,7 +36,7 @@ authRouter.post(
           })
           .returning();
         if (insertedUser) {
-          const tokens = generateTokens({
+          const tokens = generateBaseTokens({
             id: insertedUser?.id,
             email: insertedUser?.email,
             name: insertedUser?.name,
@@ -47,10 +48,11 @@ authRouter.post(
             sameSite: "lax",
             secure: false,
           });
-          return res.status(200).json({ accessToken: tokens.accessToken });
+          res.status(200).json({ accessToken: tokens.accessToken });
+          return;
         }
       }
-      const tokens = generateTokens({
+      const tokens = generateBaseTokens({
         id: user?.id,
         email: user?.email,
         name: user?.name,
@@ -61,48 +63,90 @@ authRouter.post(
         sameSite: "lax",
         secure: false,
       });
-      return res.status(200).json({ accessToken: tokens.accessToken });
+      res.status(200).json({ accessToken: tokens.accessToken });
+      return;
     } catch (error) {
       logger.error(`"Error in loginUser:" ${error}`);
-      return res.status(500).json({ error: "Internal server" });
+      res.status(500).json({ error: "Internal server" });
+      return;
     }
   }
 );
 
-authRouter.get("/refresh", async (req: Request, res: Response) => {
-  try {
-    console.log(req.cookies, "cookies");
-    const token = req.cookies.refreshToken;
-
-    res.clearCookie("refreshToken");
-
-    if (!token) {
-      return res.status(204).json({ error: "No refresh token found" });
-    }
-    let decoded: UserPayload;
-
+authRouter.get(
+  "/refresh",
+  async (req: Request, res: Response): Promise<void> => {
     try {
-      decoded = jwt.verify(token, env.JWT_REFRESH_SECRET_KEY) as UserPayload;
-    } catch (err) {
-      if (err instanceof jwt.TokenExpiredError) {
-        return res.status(403).json({ error: "Refresh token has expired" });
+      const token = req.cookies.refreshToken;
+      const organizationId = req.query.organizationId as string;
+
+      res.clearCookie("refreshToken");
+
+      if (!token) {
+        res.status(204).json({ error: "No refresh token found" });
+        return;
       }
-      return res.status(401).json({ error: "Invalid refresh token" });
+
+      let decoded: BasePayload;
+      try {
+        decoded = jwt.verify(token, env.JWT_REFRESH_SECRET_KEY) as BasePayload;
+      } catch (err) {
+        if (err instanceof jwt.TokenExpiredError) {
+          res.status(403).json({ error: "Refresh token has expired" });
+          return;
+        }
+        res.status(401).json({ error: "Invalid refresh token" });
+        return;
+      }
+
+      const { email, id, name } = decoded;
+
+      if (organizationId) {
+        const [userOrg] = await db
+          .select()
+          .from(userOrganization)
+          .where(
+            and(
+              eq(userOrganization.userId, id),
+              eq(userOrganization.organizationId, Number(organizationId))
+            )
+          );
+
+        if (userOrg) {
+          const tokens = generateOrgTokens({
+            id,
+            email,
+            name,
+            organizationId: Number(organizationId),
+            role: userOrg.role,
+          });
+
+          res.cookie("refreshToken", tokens.refreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: "lax",
+            secure: false,
+          });
+
+          res.status(200).json({ accessToken: tokens.accessToken });
+          return;
+        }
+      }
+
+      const tokens = generateBaseTokens({ id, email, name });
+      res.cookie("refreshToken", tokens.refreshToken, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        sameSite: "lax",
+        secure: false,
+      });
+
+      res.status(200).json({ accessToken: tokens.accessToken });
+      return;
+    } catch (error) {
+      logger.error(`Error in refreshing token: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+      return;
     }
-
-    const { email, id, name } = decoded;
-    const { accessToken, refreshToken } = generateTokens({ id, email, name });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "lax",
-      secure: false,
-    });
-
-    return res.status(200).json({ accessToken });
-  } catch (error) {
-    logger.error(`Error in refreshing token:, ${error}`);
-    return res.status(500).json({ error: "Internal server error" });
   }
-});
+);
