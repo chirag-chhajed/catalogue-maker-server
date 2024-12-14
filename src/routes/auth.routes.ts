@@ -63,7 +63,10 @@ authRouter.post(
         sameSite: "lax",
         secure: false,
       });
-      res.status(200).json({ accessToken: tokens.accessToken });
+      res.status(200).json({
+        accessToken: tokens.accessToken,
+        user: { id: user?.id, email, name },
+      });
       return;
     } catch (error) {
       logger.error(`"Error in loginUser:" ${error}`);
@@ -128,7 +131,16 @@ authRouter.get(
             secure: false,
           });
 
-          res.status(200).json({ accessToken: tokens.accessToken });
+          res.status(200).json({
+            accessToken: tokens.accessToken,
+            user: {
+              id,
+              email,
+              name,
+              organizationId: Number(organizationId),
+              role: userOrg.role,
+            },
+          });
           return;
         }
       }
@@ -141,7 +153,14 @@ authRouter.get(
         secure: false,
       });
 
-      res.status(200).json({ accessToken: tokens.accessToken });
+      res.status(200).json({
+        accessToken: tokens.accessToken,
+        user: {
+          id,
+          email,
+          name,
+        },
+      });
       return;
     } catch (error) {
       logger.error(`Error in refreshing token: ${error}`);

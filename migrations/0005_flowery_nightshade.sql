@@ -1,0 +1,1 @@
+ALTER TABLE "user_organization" ALTER COLUMN "joined_at" SET DEFAULT now();
