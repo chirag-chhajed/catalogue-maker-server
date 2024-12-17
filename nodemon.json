@@ -1,10 +1,5 @@
 {
-    "watch": [
-        "src",
-        ".env",
-        "package.json",
-        ".swcrc"
-    ],
-    "ext": "ts",
-    "exec": "pnpm build && pnpm start"
+  "watch": ["src", ".env", "package.json", ".swcrc"],
+  "ext": "ts",
+  "exec": "pnpm build && pnpm start"
 }

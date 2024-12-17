@@ -1,6 +1,7 @@
 import { env } from "@/env.js";
-import type { BasePayload, OrgPayload } from "@/types/auth.js";
 import jwt from "jsonwebtoken";
+
+import type { BasePayload, OrgPayload } from "@/types/auth.js";
 
 const generateBaseTokens = ({ id, email, name }: BasePayload) => {
   const payload = { id, email, name };

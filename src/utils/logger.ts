@@ -1,7 +1,7 @@
-import pino, { type Logger } from "pino";
-import path from "node:path";
 import { existsSync, mkdirSync } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import path from "node:path";
+import pino, { type Logger } from "pino";
 import pinoHttp from "pino-http";
 
 const logDirectory = "./logs";

@@ -1,0 +1,1 @@
+ALTER TABLE "catalogues" ALTER COLUMN "name" SET NOT NULL;

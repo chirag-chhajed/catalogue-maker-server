@@ -1,13 +1,15 @@
-import type { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { type JWTPayload } from "@/types/auth.js";
 import { env } from "@/env.js";
+import type { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+
 import { logger } from "@/utils/logger.js";
+
+import { type JWTPayload } from "@/types/auth.js";
 
 export const authenticate = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const authHeader = req.header("Authorization");
@@ -25,7 +27,7 @@ export const authenticate = async (
     try {
       const decoded = jwt.verify(
         token,
-        env.JWT_ACCESS_SECRET_KEY
+        env.JWT_ACCESS_SECRET_KEY,
       ) as JWTPayload;
 
       // Validate required base fields
@@ -54,7 +56,7 @@ export const authenticate = async (
 export const requireOrg = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   const user = req.user;
   if (!user || !("organizationId" in user)) {

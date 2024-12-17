@@ -1,17 +1,21 @@
-import { db } from "@/db/client.js";
-import { userOrganization, users } from "@/db/schema/hello.js";
 import { env } from "@/env.js";
-import { validateData } from "@/middlewares/validateSchema.js";
-import type { BasePayload } from "@/types/auth";
-import { logger } from "@/utils/logger.js";
-import { generateBaseTokens, generateOrgTokens } from "@/utils/token.js";
 import {
-  loginValidation,
   type LoginInput,
+  loginValidation,
 } from "@/validations/authValidation.js";
 import { and, eq } from "drizzle-orm";
-import { Router, type Request, type Response } from "express";
+import { type Request, type Response, Router } from "express";
 import jwt from "jsonwebtoken";
+
+import { db } from "@/db/client.js";
+import { userOrganization, users } from "@/db/schema/hello.js";
+
+import { validateData } from "@/middlewares/validateSchema.js";
+
+import { logger } from "@/utils/logger.js";
+import { generateBaseTokens, generateOrgTokens } from "@/utils/token.js";
+
+import type { BasePayload } from "@/types/auth";
 
 export const authRouter = Router();
 
@@ -73,7 +77,7 @@ authRouter.post(
       res.status(500).json({ error: "Internal server" });
       return;
     }
-  }
+  },
 );
 
 authRouter.get(
@@ -111,8 +115,8 @@ authRouter.get(
           .where(
             and(
               eq(userOrganization.userId, id),
-              eq(userOrganization.organizationId, Number(organizationId))
-            )
+              eq(userOrganization.organizationId, Number(organizationId)),
+            ),
           );
 
         if (userOrg) {
@@ -167,5 +171,5 @@ authRouter.get(
       res.status(500).json({ error: "Internal server error" });
       return;
     }
-  }
+  },
 );

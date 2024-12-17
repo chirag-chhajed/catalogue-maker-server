@@ -1,14 +1,17 @@
+import {
+  type CreateOrganizationInput,
+  createOrganizationValidation,
+} from "@/validations/authValidation.js";
+import { eq } from "drizzle-orm";
+import { type Request, type Response, Router } from "express";
+
 import { db } from "@/db/client.js";
 import { organizations, userOrganization } from "@/db/schema/hello.js";
+
 import { authenticate } from "@/middlewares/authenticate.js";
-import { validateData } from "@/middlewares/validateSchema";
+import { validateData } from "@/middlewares/validateSchema.js";
+
 import { logger } from "@/utils/logger.js";
-import {
-  createOrganizationValidation,
-  type CreateOrganizationInput,
-} from "@/validations/authValidation";
-import { eq } from "drizzle-orm";
-import { Router, type Request, type Response } from "express";
 
 export const organizationRouter = Router();
 
@@ -48,7 +51,7 @@ organizationRouter.post(
       logger.error(`Error creating organization: ${error}`);
       res.status(500).json({ message: "Internal server error" });
     }
-  }
+  },
 );
 
 organizationRouter.get(
@@ -73,7 +76,7 @@ organizationRouter.get(
         .from(userOrganization)
         .innerJoin(
           organizations,
-          eq(userOrganization.organizationId, organizations.id)
+          eq(userOrganization.organizationId, organizations.id),
         )
         .where(eq(userOrganization.userId, userId));
 
@@ -82,5 +85,5 @@ organizationRouter.get(
       logger.error(`Error fetching organizations: ${error}`);
       res.status(500).json({ message: "Internal server error" });
     }
-  }
+  },
 );

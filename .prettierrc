@@ -1,0 +1,21 @@
+{
+  "printWidth": 80,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "singleQuote": false,
+  "semi": true,
+  "importOrder": [
+    "<THIRD_PARTY_MODULES>",
+    "^@/routes/(.*)$",
+    "^@/controllers/(.*)$",
+    "^@/db/(.*)$",
+    "^@/middlewares/(.*)$",
+    "^@/validtions/(.*)$",
+    "^@/utils/(.*)$",
+    "^@/types/(.*)$",
+    "^[./]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "plugins": ["@trivago/prettier-plugin-sort-imports"]
+}

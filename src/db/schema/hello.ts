@@ -1,14 +1,14 @@
 import {
+  bigserial,
   decimal,
+  index,
   jsonb,
   pgEnum,
   pgTable,
-  bigserial,
   text,
   timestamp,
   uniqueIndex,
   varchar,
-  index,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable(
@@ -20,7 +20,7 @@ export const users = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [uniqueIndex("email").on(table.email)]
+  (table) => [uniqueIndex("email").on(table.email)],
 );
 
 export const organizations = pgTable("organizations", {
@@ -41,7 +41,7 @@ export const userOrganization = pgTable(
 
     userId: bigserial({ mode: "number" }).references(() => users.id),
     organizationId: bigserial({ mode: "number" }).references(
-      () => organizations.id
+      () => organizations.id,
     ),
     role: role("role").notNull(),
     joined_at: timestamp("joined_at").notNull().defaultNow(),
@@ -50,17 +50,17 @@ export const userOrganization = pgTable(
     uniqueIndex("index").on(table.userId, table.organizationId),
     index("user_organization_user_id_idx").on(table.userId),
     index("user_organization_organization_id_idx").on(table.organizationId),
-  ]
+  ],
 );
 
 export const catalogues = pgTable(
   "catalogues",
   {
     id: bigserial({ mode: "number" }).primaryKey(),
-    name: varchar("name"),
+    name: varchar("name").notNull(),
     description: text("description"),
     organizationId: bigserial({ mode: "number" }).references(
-      () => organizations.id
+      () => organizations.id,
     ),
     createdBy: bigserial({ mode: "number" }).references(() => users.id),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -69,7 +69,7 @@ export const catalogues = pgTable(
   },
   (table) => [
     index("catalogue_items_organization_id_idx").on(table.organizationId),
-  ]
+  ],
 );
 
 export const catalogueItems = pgTable(
@@ -85,7 +85,7 @@ export const catalogueItems = pgTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),
   },
-  (table) => [index("catalogue_items_catalogue_id_idx").on(table.catalogueId)]
+  (table) => [index("catalogue_items_catalogue_id_idx").on(table.catalogueId)],
 );
 
 export const catalogueItemImages = pgTable(
@@ -98,7 +98,7 @@ export const catalogueItemImages = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),
   },
-  (table) => [index("catalogue_item_images_item_id_idx").on(table.itemId)]
+  (table) => [index("catalogue_item_images_item_id_idx").on(table.itemId)],
 );
 
 export const orgInvitations = pgTable(
@@ -106,7 +106,7 @@ export const orgInvitations = pgTable(
   {
     id: bigserial({ mode: "number" }).primaryKey(),
     organizationId: bigserial({ mode: "number" }).references(
-      () => organizations.id
+      () => organizations.id,
     ),
     inviteCode: text("invite_code").unique().notNull(),
     createdBy: bigserial({ mode: "number" }).references(() => users.id),
@@ -121,5 +121,5 @@ export const orgInvitations = pgTable(
   (table) => [
     uniqueIndex("invite_code").on(table.inviteCode),
     index("org_invitations_organization_id_idx").on(table.organizationId),
-  ]
+  ],
 );
