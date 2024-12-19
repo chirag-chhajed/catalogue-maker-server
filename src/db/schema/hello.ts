@@ -1,5 +1,4 @@
 import {
-  bigserial,
   decimal,
   index,
   jsonb,
@@ -10,11 +9,15 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
+import { nanoid } from "nanoid";
 
 export const users = pgTable(
   "users",
   {
-    id: bigserial({ mode: "number" }).primaryKey(),
+    // id: bigserial({ mode: "number" }).primaryKey(),
+    id: varchar("id")
+      .$defaultFn(() => nanoid(12))
+      .primaryKey(),
     name: text("name"),
     email: varchar("email", { length: 256 }).notNull().unique(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -24,10 +27,12 @@ export const users = pgTable(
 );
 
 export const organizations = pgTable("organizations", {
-  id: bigserial({ mode: "number" }).primaryKey(),
+  id: varchar("id")
+    .$defaultFn(() => nanoid(12))
+    .primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  createdBy: bigserial({ mode: "number" }).references(() => users.id),
+  createdBy: varchar("createdBy").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -37,10 +42,12 @@ export const role = pgEnum("role", ["admin", "editor", "viewer"]);
 export const userOrganization = pgTable(
   "user_organization",
   {
-    id: bigserial({ mode: "number" }).primaryKey(),
+    id: varchar("id")
+      .$defaultFn(() => nanoid(12))
+      .primaryKey(),
 
-    userId: bigserial({ mode: "number" }).references(() => users.id),
-    organizationId: bigserial({ mode: "number" }).references(
+    userId: varchar("userId").references(() => users.id),
+    organizationId: varchar("organizationId").references(
       () => organizations.id,
     ),
     role: role("role").notNull(),
@@ -56,13 +63,15 @@ export const userOrganization = pgTable(
 export const catalogues = pgTable(
   "catalogues",
   {
-    id: bigserial({ mode: "number" }).primaryKey(),
+    id: varchar("id")
+      .$defaultFn(() => nanoid(12))
+      .primaryKey(),
     name: varchar("name").notNull(),
     description: text("description"),
-    organizationId: bigserial({ mode: "number" }).references(
+    organizationId: varchar("organizationId").references(
       () => organizations.id,
     ),
-    createdBy: bigserial({ mode: "number" }).references(() => users.id),
+    createdBy: varchar("createdBy").references(() => users.id),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),
@@ -75,13 +84,15 @@ export const catalogues = pgTable(
 export const catalogueItems = pgTable(
   "catalogue_items",
   {
-    id: bigserial({ mode: "number" }).primaryKey(),
-    catalogueId: bigserial({ mode: "number" }).references(() => catalogues.id),
+    id: varchar("id")
+      .$defaultFn(() => nanoid(12))
+      .primaryKey(),
+    catalogueId: varchar("catalogueId").references(() => catalogues.id),
     name: text("name").notNull(),
     description: text("description"),
     price: decimal("price", { precision: 10, scale: 2 }),
     metadata: jsonb("metadata"),
-    createdBy: bigserial({ mode: "number" }).references(() => users.id),
+    createdBy: varchar("createdBy").references(() => users.id),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),
@@ -92,8 +103,10 @@ export const catalogueItems = pgTable(
 export const catalogueItemImages = pgTable(
   "catalogue_item_images",
   {
-    id: bigserial({ mode: "number" }).primaryKey(),
-    itemId: bigserial({ mode: "number" }).references(() => catalogueItems.id),
+    id: varchar("id")
+      .$defaultFn(() => nanoid(12))
+      .primaryKey(),
+    itemId: varchar("itemId").references(() => catalogueItems.id),
     imageUrl: text("image_url").notNull(),
     blurhash: text("blurhash"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -105,12 +118,14 @@ export const catalogueItemImages = pgTable(
 export const orgInvitations = pgTable(
   "org_invitations",
   {
-    id: bigserial({ mode: "number" }).primaryKey(),
-    organizationId: bigserial({ mode: "number" }).references(
+    id: varchar("id")
+      .$defaultFn(() => nanoid(12))
+      .primaryKey(),
+    organizationId: varchar("organizationId").references(
       () => organizations.id,
     ),
     inviteCode: text("invite_code").unique().notNull(),
-    createdBy: bigserial({ mode: "number" }).references(() => users.id),
+    createdBy: varchar("createdBy").references(() => users.id),
     expiresAt: timestamp("expires_at").notNull(),
     role: role("role").notNull(),
     status: text("status", {

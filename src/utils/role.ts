@@ -16,7 +16,7 @@ const ROLES = {
 export type Permission = (typeof ROLES)[keyof typeof ROLES][number];
 
 export function hasPermission(
-  user: { id: number; role: ROLE },
+  user: { id: string; role: ROLE },
   permission: Permission,
 ) {
   return ROLES[user.role].includes(permission);

@@ -4,3 +4,4 @@ dist
 logs
 readme.md
 migrations
+pnpm-lock.yaml

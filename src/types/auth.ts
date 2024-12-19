@@ -1,13 +1,13 @@
 import type jwt from "jsonwebtoken";
 
 export interface BasePayload extends jwt.JwtPayload {
-  id: number;
+  id: string;
   email: string;
   name: string;
 }
 
 export interface OrgPayload extends BasePayload {
-  organizationId: number;
+  organizationId: string;
   role: "admin" | "editor" | "viewer";
 }
 

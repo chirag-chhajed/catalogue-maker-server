@@ -42,3 +42,14 @@ export const createCatalogueValidation = z.object({
 });
 
 export type CreateCatalogueInput = z.infer<typeof createCatalogueValidation>;
+
+export const updateCatalogueItemValidation = z.object({
+  name: z.string().min(1),
+  description: z.string(),
+  price: z.number().min(0),
+  catalogueId: z.string(),
+});
+
+export type UpdateCatalogueItemInput = z.infer<
+  typeof updateCatalogueItemValidation
+>;

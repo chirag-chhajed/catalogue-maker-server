@@ -57,6 +57,13 @@
       "when": 1734345158264,
       "tag": "0007_peaceful_rogue",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1734640271889,
+      "tag": "0008_early_mockingbird",
+      "breakpoints": true
     }
   ]
 }

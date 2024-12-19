@@ -1,11 +1,13 @@
 import { env } from "@/env.js";
 import {
   type CreateCatalogueInput,
+  type UpdateCatalogueItemInput,
   createCatalogueValidation,
+  updateCatalogueItemValidation,
 } from "@/validations/authValidation.js";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { encode } from "blurhash";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { type Request, type Response, Router } from "express";
 import formidable from "formidable";
 import { nanoid } from "nanoid";
@@ -21,6 +23,7 @@ import {
 } from "@/db/schema/hello.js";
 
 import { authenticate, requireOrg } from "@/middlewares/authenticate.js";
+import { requirePermission } from "@/middlewares/hasPermission.js";
 import { validateData } from "@/middlewares/validateSchema.js";
 
 import { logger } from "@/utils/logger.js";
@@ -49,7 +52,12 @@ catalogueRouter.get(
       const retrievedCatalogues = await db
         .select()
         .from(catalogues)
-        .where(eq(catalogues.organizationId, user?.organizationId))
+        .where(
+          and(
+            eq(catalogues.organizationId, user?.organizationId),
+            isNull(catalogues.deletedAt),
+          ),
+        )
         .limit(20)
         .offset(0);
 
@@ -80,8 +88,9 @@ catalogueRouter.get(
         .from(catalogues)
         .where(
           and(
-            eq(catalogues.id, Number(catalogueId)),
+            eq(catalogues.id, catalogueId),
             eq(catalogues.organizationId, user?.organizationId),
+            isNull(catalogues.deletedAt),
           ),
         );
 
@@ -132,13 +141,61 @@ catalogueRouter.get(
   },
 );
 
+catalogueRouter.delete(
+  "/:id",
+  authenticate,
+  requireOrg,
+  requirePermission("delete:catalogue"),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = req.user;
+      const catalogueId = req.params.id;
+
+      if (!user?.organizationId || !user?.id) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      const [deletedCatalogue] = await db
+        .update(catalogues)
+        .set({
+          deletedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(catalogues.id, catalogueId),
+            eq(catalogues.organizationId, user?.organizationId),
+            isNull(catalogues.deletedAt),
+          ),
+        )
+        .returning();
+
+      if (!deletedCatalogue) {
+        res.status(404).json({ message: "Catalogue not found" });
+        return;
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error(`Error deleting catalogue: ${error}`);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
+
 catalogueRouter.post(
   "/create",
   authenticate,
   requireOrg,
+  requirePermission("create:catalogue"),
+
   validateData(createCatalogueValidation),
   async (
-    req: Request<{}, {}, CreateCatalogueInput>,
+    req: Request<
+      Record<string, never>,
+      Record<string, never>,
+      CreateCatalogueInput
+    >,
     res: Response,
   ): Promise<void> => {
     try {
@@ -168,10 +225,55 @@ catalogueRouter.post(
   },
 );
 
+catalogueRouter.put(
+  "/:id",
+  authenticate,
+  requireOrg,
+  requirePermission("update:catalogue"),
+  validateData(createCatalogueValidation),
+  async (
+    req: Request<{ id: string }, Record<string, never>, CreateCatalogueInput>,
+    res: Response,
+  ): Promise<void> => {
+    try {
+      const user = req.user;
+      const catalogueId = req.params.id;
+      const { name, description } = req.body;
+
+      const [updatedCatalogue] = await db
+        .update(catalogues)
+        .set({
+          name,
+          description,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(catalogues.id, catalogueId),
+            eq(catalogues.organizationId, user.organizationId),
+            isNull(catalogues.deletedAt),
+          ),
+        )
+        .returning();
+
+      if (!updatedCatalogue) {
+        res.status(404).json({ message: "Catalogue not found" });
+        return;
+      }
+
+      res.status(200).json(updatedCatalogue);
+    } catch (error) {
+      logger.error(`Error updating catalogue: ${error}`);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
+
 catalogueRouter.post(
   "/:id/create-item",
   authenticate,
   requireOrg,
+  requirePermission("create:catalogue"),
   async (req: Request, res: Response): Promise<void> => {
     try {
       const form = formidable({
@@ -194,7 +296,7 @@ catalogueRouter.post(
         .from(catalogues)
         .where(
           and(
-            eq(catalogues.id, Number(catalogueId)),
+            eq(catalogues.id, catalogueId),
             eq(catalogues.organizationId, user?.organizationId),
           ),
         )
@@ -216,12 +318,12 @@ catalogueRouter.post(
         : files.images
           ? [files.images]
           : [];
+
       type Metadata = {
         name: string;
         description?: string;
         price: string;
       };
-      // @ts-ignore
 
       const metadata: Metadata = {
         name: Array.isArray(fields.name) ? fields.name[0] : fields.name,
@@ -234,7 +336,7 @@ catalogueRouter.post(
         const [insertedCatalogueItem] = await trx
           .insert(catalogueItems)
           .values({
-            catalogueId: Number(catalogueId),
+            catalogueId,
             ...metadata,
             createdBy: user.id,
           })
@@ -296,6 +398,94 @@ catalogueRouter.post(
       res.status(201).json(uploadCatalogueImages);
     } catch (error) {
       logger.error(`Error creating item: ${error}`);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
+
+catalogueRouter.delete(
+  "/delete-item/:id",
+  authenticate,
+  requireOrg,
+  requirePermission("delete:catalogue"),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = req.user;
+      const itemId = req.params.id;
+
+      if (!user?.organizationId || !user?.id) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      const [deletedItem] = await db
+        .update(catalogueItems)
+        .set({
+          deletedAt: new Date(),
+        })
+        .where(
+          and(eq(catalogueItems.id, itemId), isNull(catalogueItems.deletedAt)),
+        )
+        .returning();
+
+      if (!deletedItem) {
+        res.status(404).json({ message: "Item not found" });
+        return;
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error(`Error deleting item: ${error}`);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
+
+catalogueRouter.put(
+  "/items/:id",
+  authenticate,
+  requireOrg,
+  requirePermission("update:catalogue"),
+  validateData(updateCatalogueItemValidation),
+  async (
+    req: Request<
+      { id: string },
+      Record<string, never>,
+      UpdateCatalogueItemInput
+    >,
+    res: Response,
+  ): Promise<void> => {
+    try {
+      const user = req.user;
+      const itemId = req.params.id;
+      const { name, description, price, catalogueId } = req.body;
+
+      const [updatedItem] = await db
+        .update(catalogueItems)
+        .set({
+          name,
+          description,
+          price: price.toString(),
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(catalogueItems.id, itemId),
+            eq(catalogueItems.catalogueId, catalogueId),
+            eq(catalogues.organizationId, user.organizationId),
+            isNull(catalogueItems.deletedAt),
+          ),
+        )
+        .returning();
+
+      if (!updatedItem) {
+        res.status(404).json({ message: "Item not found" });
+        return;
+      }
+
+      res.status(200).json(updatedItem);
+    } catch (error) {
+      logger.error(`Error updating catalogue item: ${error}`);
       res.status(500).json({ message: "Internal server error" });
     }
   },

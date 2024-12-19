@@ -115,7 +115,7 @@ authRouter.get(
           .where(
             and(
               eq(userOrganization.userId, id),
-              eq(userOrganization.organizationId, Number(organizationId)),
+              eq(userOrganization.organizationId, organizationId),
             ),
           );
 
@@ -124,7 +124,7 @@ authRouter.get(
             id,
             email,
             name,
-            organizationId: Number(organizationId),
+            organizationId: organizationId,
             role: userOrg.role,
           });
 
@@ -141,7 +141,7 @@ authRouter.get(
               id,
               email,
               name,
-              organizationId: Number(organizationId),
+              organizationId: organizationId,
               role: userOrg.role,
             },
           });
