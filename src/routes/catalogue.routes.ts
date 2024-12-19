@@ -236,6 +236,7 @@ catalogueRouter.post(
           .values({
             catalogueId: Number(catalogueId),
             ...metadata,
+            createdBy: user.id,
           })
           .returning();
         if (!insertedCatalogueItem?.id) {

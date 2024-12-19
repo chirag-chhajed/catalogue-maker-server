@@ -2,13 +2,14 @@ import {
   type CreateOrganizationInput,
   createOrganizationValidation,
 } from "@/validations/authValidation.js";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { type Request, type Response, Router } from "express";
 
 import { db } from "@/db/client.js";
 import { organizations, userOrganization } from "@/db/schema/hello.js";
 
-import { authenticate } from "@/middlewares/authenticate.js";
+import { authenticate, requireOrg } from "@/middlewares/authenticate.js";
+import { requirePermission } from "@/middlewares/hasPermission.js";
 import { validateData } from "@/middlewares/validateSchema.js";
 
 import { logger } from "@/utils/logger.js";
@@ -19,7 +20,14 @@ organizationRouter.post(
   "/create",
   authenticate,
   validateData(createOrganizationValidation),
-  async (req: Request<{}, {}, CreateOrganizationInput>, res: Response) => {
+  async (
+    req: Request<
+      Record<string, never>,
+      Record<string, never>,
+      CreateOrganizationInput
+    >,
+    res: Response,
+  ) => {
     const { name, description } = req.body;
     const userId = req.user?.id;
 
@@ -83,6 +91,41 @@ organizationRouter.get(
       res.json(userOrgs);
     } catch (error) {
       logger.error(`Error fetching organizations: ${error}`);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
+
+organizationRouter.delete(
+  "/remove-user/:userId",
+  authenticate,
+  requireOrg,
+  requirePermission("remove:user"),
+  async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      const user = req.user;
+      if (!userId) {
+        return;
+      }
+      const [hello] = await db
+        .delete(userOrganization)
+        .where(
+          and(
+            eq(userOrganization.userId, Number.parseInt(userId)),
+            eq(userOrganization.organizationId, user?.organizationId),
+          ),
+        )
+        .returning({ id: userOrganization.id });
+
+      if (!hello) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
+      res.status(204).end();
+    } catch (error) {
+      logger.error(`Error removing user: ${error}`);
       res.status(500).json({ message: "Internal server error" });
     }
   },

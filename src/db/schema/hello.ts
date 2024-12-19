@@ -81,6 +81,7 @@ export const catalogueItems = pgTable(
     description: text("description"),
     price: decimal("price", { precision: 10, scale: 2 }),
     metadata: jsonb("metadata"),
+    createdBy: bigserial({ mode: "number" }).references(() => users.id),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),
@@ -113,7 +114,7 @@ export const orgInvitations = pgTable(
     expiresAt: timestamp("expires_at").notNull(),
     role: role("role").notNull(),
     status: text("status", {
-      enum: ["active", "expired", "accepted", "rejected"],
+      enum: ["active", "accepted", "rejected"],
     })
       .notNull()
       .default("active"),
