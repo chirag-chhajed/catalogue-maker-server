@@ -7,7 +7,7 @@ import {
 } from "@/validations/authValidation.js";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { encode } from "blurhash";
-import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { type Request, type Response, Router } from "express";
 import formidable from "formidable";
 import { nanoid } from "nanoid";
@@ -59,7 +59,8 @@ catalogueRouter.get(
           ),
         )
         .limit(20)
-        .offset(0);
+        .offset(0)
+        .orderBy(desc(catalogues.createdAt));
 
       res.status(200).json(retrievedCatalogues);
     } catch (error) {
@@ -125,7 +126,12 @@ catalogueRouter.get(
           catalogueItemImages,
           eq(catalogueItemImages.itemId, catalogueItems.id),
         )
-        .where(eq(catalogueItems.catalogueId, catalogueDetail.id))
+        .where(
+          and(
+            eq(catalogueItems.catalogueId, catalogueDetail.id),
+            isNull(catalogueItems.deletedAt),
+          ),
+        )
         .groupBy(
           catalogueItems.id,
           catalogueItems.name,
@@ -188,7 +194,6 @@ catalogueRouter.post(
   authenticate,
   requireOrg,
   requirePermission("create:catalogue"),
-
   validateData(createCatalogueValidation),
   async (
     req: Request<
@@ -201,7 +206,7 @@ catalogueRouter.post(
     try {
       const user = req.user;
       const { name, description } = req.body;
-      console.log(user);
+      console.log(name, description);
       if (!user?.organizationId || !user?.id) {
         res.status(401).json({ message: "Unauthorized" });
         return;
@@ -468,6 +473,8 @@ catalogueRouter.put(
           price: price.toString(),
           updatedAt: new Date(),
         })
+        .from(catalogueItems)
+        .innerJoin(catalogues, eq(catalogues.id, catalogueItems.catalogueId))
         .where(
           and(
             eq(catalogueItems.id, itemId),

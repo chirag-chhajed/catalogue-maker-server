@@ -22,7 +22,10 @@ export const authRouter = Router();
 authRouter.post(
   "/login",
   validateData(loginValidation),
-  async (req: Request<{}, {}, LoginInput>, res: Response): Promise<void> => {
+  async (
+    req: Request<Record<string, never>, Record<string, never>, LoginInput>,
+    res: Response,
+  ): Promise<void> => {
     const { email, name } = req.body;
 
     try {
@@ -107,7 +110,7 @@ authRouter.get(
       }
 
       const { email, id, name } = decoded;
-
+      console.log(decoded, "decoded");
       if (organizationId) {
         const [userOrg] = await db
           .select()
@@ -118,7 +121,7 @@ authRouter.get(
               eq(userOrganization.organizationId, organizationId),
             ),
           );
-
+        console.log(userOrg);
         if (userOrg) {
           const tokens = generateOrgTokens({
             id,
@@ -148,7 +151,14 @@ authRouter.get(
           return;
         }
       }
-
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email));
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
       const tokens = generateBaseTokens({ id, email, name });
       res.cookie("refreshToken", tokens.refreshToken, {
         httpOnly: true,
@@ -173,3 +183,14 @@ authRouter.get(
     }
   },
 );
+
+authRouter.post("/logout", async (req, res) => {
+  try {
+    res.clearCookie("refreshToken");
+    logger.info("User logged out successfully");
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    logger.error(`Error during logout: ${error}`);
+    res.status(500).json({ message: "An error occurred during logout" });
+  }
+});

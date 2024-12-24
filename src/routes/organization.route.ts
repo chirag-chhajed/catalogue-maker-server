@@ -2,7 +2,7 @@ import {
   type CreateOrganizationInput,
   createOrganizationValidation,
 } from "@/validations/authValidation.js";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { type Request, type Response, Router } from "express";
 
 import { db } from "@/db/client.js";
@@ -86,7 +86,8 @@ organizationRouter.get(
           organizations,
           eq(userOrganization.organizationId, organizations.id),
         )
-        .where(eq(userOrganization.userId, userId));
+        .where(eq(userOrganization.userId, userId))
+        .orderBy(desc(userOrganization.joined_at));
 
       res.json(userOrgs);
     } catch (error) {
