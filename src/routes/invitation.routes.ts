@@ -10,12 +10,12 @@ import { and, eq, gt } from "drizzle-orm";
 import { type Request, type Response, Router } from "express";
 import { nanoid } from "nanoid";
 
-import { db } from "@/db/client";
+import { db } from "@/db/client.js";
 import {
   orgInvitations,
   organizations,
   userOrganization,
-} from "@/db/schema/hello";
+} from "@/db/schema/hello.js";
 
 import { authenticate, requireOrg } from "@/middlewares/authenticate.js";
 import { requirePermission } from "@/middlewares/hasPermission.js";
@@ -45,16 +45,19 @@ invitationsRouter.post(
         res.status(401).json({ message: "You must be logged in" });
         return;
       }
-      await db.insert(orgInvitations).values({
-        organizationId: req.user?.organizationId,
-        expiresAt: addDays(new Date(), 7),
-        createdBy: user?.id,
-        inviteCode: nanoid(10),
-        status: "active",
-        role: req.body.role,
-      });
+      const [newInvitation] = await db
+        .insert(orgInvitations)
+        .values({
+          organizationId: req.user?.organizationId,
+          expiresAt: addDays(new Date(), 7),
+          createdBy: user?.id,
+          inviteCode: nanoid(10),
+          status: "active",
+          role: req.body.role,
+        })
+        .returning();
 
-      res.status(201).json("Successfully created Invite Code");
+      res.status(201).json({ inviteCode: newInvitation?.inviteCode });
     } catch (error) {
       logger.error(`Error creating invitation: ${error}`);
       res.status(500).json({ message: "Internal server error" });
@@ -101,7 +104,12 @@ invitationsRouter.post(
   ) => {
     try {
       const { inviteCode } = req.body;
+      const userId = req.user?.id;
 
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
       const [invitation] = await db
         .select({
           organizationName: organizations.name,
@@ -117,6 +125,20 @@ invitationsRouter.post(
           organizations,
           eq(orgInvitations.organizationId, organizations.id),
         );
+
+      const userOrgs = await db
+        .select({
+          id: organizations.id,
+          name: organizations.name,
+          description: organizations.description,
+          role: userOrganization.role,
+        })
+        .from(userOrganization)
+        .innerJoin(
+          organizations,
+          eq(userOrganization.organizationId, organizations.id),
+        )
+        .where(eq(userOrganization.userId, userId));
 
       if (!invitation) {
         res.status(404).json({ message: "Invalid Invite Code" });
@@ -136,6 +158,12 @@ invitationsRouter.post(
       }
       if (invitation?.status === "rejected") {
         res.status(400).json({ message: "Invite Code has been rejected" });
+        return;
+      }
+      if (userOrgs.some((org) => org.id === invitation.organizationId)) {
+        res.status(400).json({
+          message: "You are already a member of this organization",
+        });
         return;
       }
       res.status(200).json(invitation);
@@ -161,6 +189,10 @@ invitationsRouter.post(
     try {
       const { inviteCode, joining } = req.body;
       const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
       const [invitation] = await db
         .select({
           organizationName: organizations.name,
@@ -178,12 +210,30 @@ invitationsRouter.post(
             eq(orgInvitations.status, "active"),
           ),
         );
+      const userOrgs = await db
+        .select({
+          id: organizations.id,
+          name: organizations.name,
+          description: organizations.description,
+          role: userOrganization.role,
+        })
+        .from(userOrganization)
+        .innerJoin(
+          organizations,
+          eq(userOrganization.organizationId, organizations.id),
+        )
+        .where(eq(userOrganization.userId, userId));
 
       if (!invitation) {
         res.status(404).json({ message: "Invitation doesn't exist" });
         return;
       }
-
+      if (userOrgs.some((org) => org.id === invitation.organizationId)) {
+        res.status(400).json({
+          message: "You are already a member of this organization",
+        });
+        return;
+      }
       if (joining) {
         await db.transaction(async (trx) => {
           await trx

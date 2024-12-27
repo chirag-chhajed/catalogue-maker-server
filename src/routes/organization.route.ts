@@ -113,7 +113,7 @@ organizationRouter.delete(
         .delete(userOrganization)
         .where(
           and(
-            eq(userOrganization.userId, Number.parseInt(userId)),
+            eq(userOrganization.userId, userId),
             eq(userOrganization.organizationId, user?.organizationId),
           ),
         )
