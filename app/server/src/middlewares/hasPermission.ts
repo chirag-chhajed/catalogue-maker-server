@@ -11,7 +11,7 @@ export const requirePermission = (permission: Permission) => {
     const user = req.user;
 
     const hasAccess = hasPermission(
-      { id: user.id, role: user?.role },
+      { id: user?.id, role: user?.role },
       permission,
     );
 

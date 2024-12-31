@@ -32,7 +32,9 @@ export const organizations = pgTable("organizations", {
     .primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  createdBy: varchar("createdBy").references(() => users.id),
+  createdBy: varchar("createdBy")
+    .references(() => users.id)
+    .notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -47,9 +49,9 @@ export const userOrganization = pgTable(
       .primaryKey(),
 
     userId: varchar("userId").references(() => users.id),
-    organizationId: varchar("organizationId").references(
-      () => organizations.id,
-    ),
+    organizationId: varchar("organizationId")
+      .references(() => organizations.id)
+      .notNull(),
     role: role("role").notNull(),
     joined_at: timestamp("joined_at").notNull().defaultNow(),
   },
@@ -68,9 +70,9 @@ export const catalogues = pgTable(
       .primaryKey(),
     name: varchar("name").notNull(),
     description: text("description"),
-    organizationId: varchar("organizationId").references(
-      () => organizations.id,
-    ),
+    organizationId: varchar("organizationId")
+      .references(() => organizations.id)
+      .notNull(),
     createdBy: varchar("createdBy").references(() => users.id),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -87,7 +89,9 @@ export const catalogueItems = pgTable(
     id: varchar("id")
       .$defaultFn(() => nanoid(12))
       .primaryKey(),
-    catalogueId: varchar("catalogueId").references(() => catalogues.id),
+    catalogueId: varchar("catalogueId")
+      .references(() => catalogues.id)
+      .notNull(),
     name: text("name").notNull(),
     description: text("description"),
     price: decimal("price", { precision: 10, scale: 2 }),
@@ -106,7 +110,9 @@ export const catalogueItemImages = pgTable(
     id: varchar("id")
       .$defaultFn(() => nanoid(12))
       .primaryKey(),
-    itemId: varchar("itemId").references(() => catalogueItems.id),
+    itemId: varchar("itemId")
+      .references(() => catalogueItems.id)
+      .notNull(),
     imageUrl: text("image_url").notNull(),
     blurhash: text("blurhash"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -121,11 +127,13 @@ export const orgInvitations = pgTable(
     id: varchar("id")
       .$defaultFn(() => nanoid(12))
       .primaryKey(),
-    organizationId: varchar("organizationId").references(
-      () => organizations.id,
-    ),
+    organizationId: varchar("organizationId")
+      .references(() => organizations.id)
+      .notNull(),
     inviteCode: text("invite_code").unique().notNull(),
-    createdBy: varchar("createdBy").references(() => users.id),
+    createdBy: varchar("createdBy")
+      .references(() => users.id)
+      .notNull(),
     expiresAt: timestamp("expires_at").notNull(),
     role: role("role").notNull(),
     status: text("status", {
