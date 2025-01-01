@@ -5,9 +5,11 @@ import { ChromeIcon as Google } from "lucide-react";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useLoginMutation } from "@/store/features/api/authApi";
+import { useRouter } from "next/navigation";
 
 export default function SignInButton() {
   const [login, { isLoading }] = useLoginMutation();
+  const router = useRouter();
   const handleSignIn = async () => {
     // Implement Google Sign-In logic here
     try {
@@ -17,6 +19,7 @@ export default function SignInButton() {
         email: user.email,
         name: user.displayName,
       }).unwrap();
+      router.replace("/organizations");
     } catch (error) {
       console.error(error);
     } finally {
