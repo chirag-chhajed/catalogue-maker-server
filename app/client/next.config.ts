@@ -16,6 +16,16 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // https://merapyaraawskabucket.s3.ap-south-1.amazonaws.com/eh98G2YzVfqo/PhNaw9edheORbJlxA5Z__.webp,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "merapyaraawskabucket.s3.ap-south-1.amazonaws.com",
+        pathname: "**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

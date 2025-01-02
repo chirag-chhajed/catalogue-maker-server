@@ -17,6 +17,8 @@ import {
 import { MoreVertical, Edit, Trash } from "lucide-react";
 import EditCatalogueDialog from "./edit-catalogue-dialog";
 import DeleteCatalogueDialog from "./delete-catalogue-dialog";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Catalogue {
   id: string;
@@ -31,6 +33,7 @@ export default function CatalogueCard({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const router = useRouter();
   const pastelColors = [
     "bg-pink-200",
     "bg-purple-200",
@@ -52,8 +55,13 @@ export default function CatalogueCard({
   };
 
   return (
-    <>
-      <Card className="overflow-hidden">
+    <Link href={`/catalogues/${catalogue.id}`} prefetch={false}>
+      <Card
+        // onClick={() => {
+        //   router.push(`/catalogues/${catalogue.id}`);
+        // }}
+        className="overflow-hidden cursor-pointer"
+      >
         <div className={`${randomColor} h-32`}></div>
         <CardHeader className="flex flex-row justify-between items-start">
           <CardTitle>{catalogue.name}</CardTitle>
@@ -74,8 +82,13 @@ export default function CatalogueCard({
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-500">{catalogue.description}</p>
+        <CardContent className="px-6 py-0">
+          <p
+            title={catalogue.description}
+            className="text-sm text-gray-500 line-clamp-5"
+          >
+            {catalogue.description}
+          </p>
         </CardContent>
         <CardFooter className="justify-between">
           <span className="text-sm text-gray-500">
@@ -93,6 +106,6 @@ export default function CatalogueCard({
         onClose={() => setIsDeleteDialogOpen(false)}
         catalogueId={catalogue.id}
       />
-    </>
+    </Link>
   );
 }

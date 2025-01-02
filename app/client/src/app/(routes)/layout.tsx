@@ -1,14 +1,14 @@
 "use client";
 
 import { useAppSelector } from "@/store/hooks";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
 
 const RouteLayout = ({ children }: { children: React.ReactNode }) => {
   const { accessToken } = useAppSelector((state) => state.hello);
   const router = useRouter();
-
-  if (accessToken) {
+  const pathname = usePathname();
+  if (accessToken && pathname === "/") {
     router.replace("/catalogues");
   }
 

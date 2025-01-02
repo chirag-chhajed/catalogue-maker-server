@@ -120,6 +120,7 @@ catalogueRouter.get(
       ) FILTER (WHERE ${catalogueItemImages.id} IS NOT NULL),
       '[]'
     )`,
+          createdAt: catalogueItems.createdAt,
         })
         .from(catalogueItems)
         .leftJoin(
