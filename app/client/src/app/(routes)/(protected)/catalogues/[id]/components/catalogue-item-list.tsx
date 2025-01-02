@@ -19,10 +19,10 @@ const CatalogueItemList = ({ catalogueId }: { catalogueId: string }) => {
     return <CatalogueItemListSkeleton />;
   }
   if (catalogueItems?.items.length === 0) {
-    return <EmptyState />;
+    return <EmptyState id={catalogueId} />;
   }
   return (
-    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {catalogueItems?.items?.map((catalogue) => (
         <CatalogueItemCard
           key={catalogue.id}
@@ -33,6 +33,7 @@ const CatalogueItemList = ({ catalogueId }: { catalogueId: string }) => {
             price: catalogue.price,
             imageUrl: catalogue.images[0].imageUrl,
             createdAt: catalogue.createdAt,
+            catalogueId,
           }}
         />
       ))}

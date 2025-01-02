@@ -24,9 +24,13 @@ export const useOrganizationIdSelector = () => {
   const { changeOrganizationId, clearOrganizationId } =
     useOrganitionIdDispatch();
 
+  // Handle initial state and local changes
   useEffect(() => {
     if (!organizationId) {
       const storedId = localStorage.getItem("user_preferred_org");
+      console.log(
+        `[Init] State organizationId: ${organizationId}, localStorage: ${storedId}`
+      );
       if (storedId) {
         changeOrganizationId(storedId);
       } else {
@@ -34,6 +38,25 @@ export const useOrganizationIdSelector = () => {
       }
     }
   }, [organizationId]);
+
+  // Handle cross-tab changes
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "user_preferred_org") {
+        console.log(
+          `[Storage Event] New value: ${e.newValue}, Current state: ${organizationId}`
+        );
+        if (e.newValue) {
+          changeOrganizationId(e.newValue);
+        } else {
+          clearOrganizationId();
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   return organizationId;
 };

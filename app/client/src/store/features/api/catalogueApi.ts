@@ -121,5 +121,6 @@ type GetCatalogItems = {
     description: string | null;
     price: string;
     images: ImageType[];
+    createdAt: Date;
   }[];
 };

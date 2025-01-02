@@ -10,6 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useDeleteCatalogItemMutation } from "@/store/features/api/catalogueApi";
+import { toast } from "sonner";
 
 interface DeleteCatalogueItemDialogProps {
   isOpen: boolean;
@@ -22,10 +24,22 @@ export default function DeleteCatalogueItemDialog({
   onClose,
   itemId,
 }: DeleteCatalogueItemDialogProps) {
+  const [deleteItem] = useDeleteCatalogItemMutation();
   const handleDelete = () => {
     // Implement delete catalogue item functionality
-    console.log("Deleting catalogue item:", itemId);
-    onClose();
+    toast.promise(
+      deleteItem({
+        id: itemId,
+      }).unwrap(),
+      {
+        loading: "Deleting...",
+        success: () => {
+          onClose();
+          return "Item deleted successfully";
+        },
+        error: "Failed to delete Item",
+      }
+    );
   };
 
   return (

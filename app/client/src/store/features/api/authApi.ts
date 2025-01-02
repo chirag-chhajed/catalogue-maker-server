@@ -15,7 +15,7 @@ const authApi = api.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           dispatch(
-            changeState({ accessToken: data.accessToken, user: data.user }),
+            changeState({ accessToken: data.accessToken, user: data.user })
           );
         } catch (error) {}
       },
@@ -30,9 +30,14 @@ const authApi = api.injectEndpoints({
           const { data } = await queryFulfilled;
 
           dispatch(
-            changeState({ accessToken: data.accessToken, user: data.user }),
+            changeState({ accessToken: data.accessToken, user: data.user })
           );
-        } catch (error) {}
+        } catch ({ error }) {
+          if (error?.status === 400) {
+            dispatch(clearState());
+            dispatch(clearOrganizationId());
+          }
+        }
       },
     }),
     logout: builder.mutation<void, void>({

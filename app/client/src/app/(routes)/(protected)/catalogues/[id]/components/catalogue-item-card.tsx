@@ -25,6 +25,7 @@ interface CatalogueItem {
   price: number;
   imageUrl: string;
   createdAt: string;
+  catalogueId: string;
 }
 
 export default function CatalogueItemCard({ item }: { item: CatalogueItem }) {
@@ -32,14 +33,14 @@ export default function CatalogueItemCard({ item }: { item: CatalogueItem }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   return (
     <>
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden relative">
         <CardHeader className="p-0">
           <div className="relative h-48 w-full">
             <Image
               src={item.imageUrl}
               alt={item.name}
-              layout="fill"
               objectFit="contain"
+              fill
             />
           </div>
           <div className="absolute top-2 right-2">
@@ -63,7 +64,7 @@ export default function CatalogueItemCard({ item }: { item: CatalogueItem }) {
         <CardContent className="p-4">
           <h3 className="font-semibold text-lg mb-2">{item.name}</h3>
           <p className="text-sm text-gray-500 mb-2">{item.description}</p>
-          <p className="font-bold text-lg">${item.price}</p>
+          <p className="font-bold text-lg"> ₹{item.price.toLocaleString()}</p>
         </CardContent>
         <CardFooter className="text-sm text-gray-500">
           {new Date(item.createdAt).toLocaleDateString()}

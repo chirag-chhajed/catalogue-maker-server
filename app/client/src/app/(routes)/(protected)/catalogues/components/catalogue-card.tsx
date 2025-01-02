@@ -18,7 +18,6 @@ import { MoreVertical, Edit, Trash } from "lucide-react";
 import EditCatalogueDialog from "./edit-catalogue-dialog";
 import DeleteCatalogueDialog from "./delete-catalogue-dialog";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 interface Catalogue {
   id: string;
@@ -33,7 +32,6 @@ export default function CatalogueCard({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const router = useRouter();
   const pastelColors = [
     "bg-pink-200",
     "bg-purple-200",

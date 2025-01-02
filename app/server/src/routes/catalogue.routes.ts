@@ -7,7 +7,7 @@ import {
 } from "@/validations/authValidation.js";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { encode } from "blurhash";
-import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, exists, isNull, sql } from "drizzle-orm";
 import { type Request, type Response, Router } from "express";
 import formidable from "formidable";
 import { nanoid } from "nanoid";
@@ -474,13 +474,21 @@ catalogueRouter.put(
           price: price.toString(),
           updatedAt: new Date(),
         })
-        .from(catalogueItems)
-        .innerJoin(catalogues, eq(catalogues.id, catalogueItems.catalogueId))
         .where(
           and(
             eq(catalogueItems.id, itemId),
             eq(catalogueItems.catalogueId, catalogueId),
-            eq(catalogues.organizationId, user.organizationId),
+            exists(
+              db
+                .select()
+                .from(catalogues)
+                .where(
+                  and(
+                    eq(catalogues.id, catalogueId),
+                    eq(catalogues.organizationId, user.organizationId),
+                  ),
+                ),
+            ),
             isNull(catalogueItems.deletedAt),
           ),
         )

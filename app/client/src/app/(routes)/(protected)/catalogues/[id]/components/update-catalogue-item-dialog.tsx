@@ -21,11 +21,25 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useUpdateCatalogItemMutation } from "@/store/features/api/catalogueApi";
+import { toast } from "sonner";
 
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
-  price: z.number().min(0, "Price must be a positive number"),
+const schema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Name must be minimum of 1 character")
+    .max(100, "Name must be maximum of 100 characters"),
+  description: z
+    .string()
+    .trim()
+    .max(500, "Description must be maximum of 500 characters")
+    .optional(),
+  price: z.coerce
+    .number({ message: "Enter a valid price" })
+    .positive("Price must be greater than 0")
+    .multipleOf(0.01, "Price can only have up to 2 decimal places")
+    .min(0.01, "Minimum price is 0.01"),
 });
 
 interface CatalogueItem {
@@ -35,6 +49,7 @@ interface CatalogueItem {
   price: number;
   imageUrl: string;
   createdAt: string;
+  catalogueId: string;
 }
 
 interface UpdateCatalogueItemDialogProps {
@@ -48,8 +63,8 @@ export default function UpdateCatalogueItemDialog({
   onClose,
   item,
 }: UpdateCatalogueItemDialogProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
       name: item.name,
       description: item.description,
@@ -57,10 +72,25 @@ export default function UpdateCatalogueItemDialog({
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const [updateCatalog, { isLoading }] = useUpdateCatalogItemMutation();
+
+  const onSubmit = (values: z.infer<typeof schema>) => {
     // Implement update catalogue item functionality
-    console.log("Updating catalogue item:", { id: item.id, ...values });
-    onClose();
+    toast.promise(
+      updateCatalog({
+        id: item.id,
+        catalogueId: item.catalogueId,
+        ...values,
+      }).unwrap(),
+      {
+        success: () => {
+          onClose();
+          return "Item updated successfully";
+        },
+        error: "Failed to update Item",
+        loading: "Updating Item...",
+      }
+    );
   };
 
   return (

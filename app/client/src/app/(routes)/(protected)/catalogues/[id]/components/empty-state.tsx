@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default function EmptyState() {
+export default function EmptyState({ id }: { id: string }) {
   return (
     <div className="text-center">
       <Image
@@ -16,7 +16,7 @@ export default function EmptyState() {
       <p className="text-gray-600 mb-4">
         Add your first item to this catalogue!
       </p>
-      <Link href="/catalogues/create">
+      <Link href={`/catalogues/${id}/create`}>
         <Button>Add Item</Button>
       </Link>
     </div>

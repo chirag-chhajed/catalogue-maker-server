@@ -7,9 +7,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Settings, HelpCircle } from "lucide-react";
+import { useLogoutMutation } from "@/store/features/api/authApi";
+import { MoreVertical, Settings, HelpCircle, LogOutIcon } from "lucide-react";
+import { toast } from "sonner";
 
 export default function SettingsMenu() {
+  const [logout] = useLogoutMutation();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -22,9 +25,21 @@ export default function SettingsMenu() {
           <Settings className="mr-2 h-4 w-4" />
           Settings
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <HelpCircle className="mr-2 h-4 w-4" />
-          Help
+        <DropdownMenuItem
+          className="text-red-500"
+          onClick={() => {
+            toast.promise(logout().unwrap(), {
+              loading: "Logging out...",
+              success: () => {
+                localStorage.setItem("logout-event", Date.now().toString());
+                return "Logged out";
+              },
+              error: "Failed to log out",
+            });
+          }}
+        >
+          <LogOutIcon className="mr-2 h-4 w-4" />
+          Logout
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

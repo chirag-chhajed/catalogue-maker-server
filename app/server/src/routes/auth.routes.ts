@@ -110,8 +110,15 @@ authRouter.get(
       }
 
       const { email, id, name } = decoded;
-      console.log(decoded, "decoded");
-      if (organizationId) {
+
+      // If organizationId is provided, validate it
+      if (organizationId && organizationId !== "null") {
+        // Check if it's a valid 12-digit nanoid
+        if (organizationId.length !== 12) {
+          res.status(400).json({ error: "Invalid organization ID format" });
+          return;
+        }
+
         const [userOrg] = await db
           .select()
           .from(userOrganization)
@@ -121,44 +128,51 @@ authRouter.get(
               eq(userOrganization.organizationId, organizationId),
             ),
           );
-        console.log(userOrg);
-        if (userOrg) {
-          const tokens = generateOrgTokens({
+
+        if (!userOrg) {
+          res.status(403).json({ error: "Invalid organization access" });
+          return;
+        }
+
+        const tokens = generateOrgTokens({
+          id,
+          email,
+          name,
+          organizationId: organizationId,
+          role: userOrg.role,
+        });
+
+        res.cookie("refreshToken", tokens.refreshToken, {
+          httpOnly: true,
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+          sameSite: "lax",
+          secure: false,
+        });
+
+        res.status(200).json({
+          accessToken: tokens.accessToken,
+          user: {
             id,
             email,
             name,
             organizationId: organizationId,
             role: userOrg.role,
-          });
-
-          res.cookie("refreshToken", tokens.refreshToken, {
-            httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            sameSite: "lax",
-            secure: false,
-          });
-
-          res.status(200).json({
-            accessToken: tokens.accessToken,
-            user: {
-              id,
-              email,
-              name,
-              organizationId: organizationId,
-              role: userOrg.role,
-            },
-          });
-          return;
-        }
+          },
+        });
+        return;
       }
+
+      // Handle case with no organizationId
       const [user] = await db
         .select()
         .from(users)
         .where(eq(users.email, email));
+
       if (!user) {
         res.status(404).json({ error: "User not found" });
         return;
       }
+
       const tokens = generateBaseTokens({ id, email, name });
       res.cookie("refreshToken", tokens.refreshToken, {
         httpOnly: true,
