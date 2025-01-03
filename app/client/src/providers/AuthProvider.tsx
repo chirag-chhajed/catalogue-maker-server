@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useRefreshQuery } from "@/store/features/api/authApi";
 import { useOrganizationIdSelector } from "@/store/hooks";
 import { Loader } from "lucide-react";
@@ -22,8 +23,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         {/* <LoaderCircleIcon size={48} className="text-blue-500 animate-spin" /> */}
         <Loader
           color="rgb(59 130 246 / var(--tw-text-opacity, 1))"
-          className="animate-spin"
-          size={48}
+          className={cn("animate-spin")}
+          size={24}
         />
       </div>
     );

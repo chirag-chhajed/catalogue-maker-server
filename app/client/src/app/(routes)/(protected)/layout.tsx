@@ -12,7 +12,7 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
     const protectedPattern = /^\/(?:organizations|catalogues)(?:\/.*)?$/;
     return protectedPattern.test(path);
   };
-  console.log(pathname);
+  // console.log(pathname);
   if (!accessToken && isProtectedRoute(pathname)) {
     router.replace("/");
   }

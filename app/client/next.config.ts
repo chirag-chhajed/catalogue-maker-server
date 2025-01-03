@@ -1,15 +1,16 @@
+import { env } from "@/env.mjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: "/api/:path*",
-  //       destination: "https://605l6z6z-3434.inc1.devtunnels.ms/api/:path*",
-  //     },
-  //   ];
-  // },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${env.NEXT_PUBLIC_API_URL}/api/:path*`,
+      },
+    ];
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

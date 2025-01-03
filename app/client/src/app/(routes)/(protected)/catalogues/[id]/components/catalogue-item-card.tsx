@@ -17,6 +17,7 @@ import {
 import { MoreVertical, Edit, Trash } from "lucide-react";
 import UpdateCatalogueItemDialog from "./update-catalogue-item-dialog";
 import DeleteCatalogueItemDialog from "./delete-catalogue-item-dialog";
+import Link from "next/link";
 
 interface CatalogueItem {
   id: string;
@@ -32,14 +33,17 @@ export default function CatalogueItemCard({ item }: { item: CatalogueItem }) {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   return (
-    <>
+    <Link
+      href={`/details/${item.catalogueId}?catalogueItemId=${item.id}`}
+      prefetch={false}
+    >
       <Card className="overflow-hidden relative">
         <CardHeader className="p-0">
           <div className="relative h-48 w-full">
             <Image
               src={item.imageUrl}
               alt={item.name}
-              objectFit="contain"
+              className="object-contain"
               fill
             />
           </div>
@@ -80,6 +84,6 @@ export default function CatalogueItemCard({ item }: { item: CatalogueItem }) {
         onClose={() => setIsDeleteDialogOpen(false)}
         itemId={item.id}
       />
-    </>
+    </Link>
   );
 }

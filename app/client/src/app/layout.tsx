@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ReduxProvider } from "@/store/provider";
 import { Toaster } from "sonner";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import AuthProvider from "@/providers/AuthProvider";
 
 const geistSans = Geist({
@@ -28,10 +29,15 @@ export default function RootLayout({
   return (
     <ReduxProvider>
       <AuthProvider>
-        <html lang="en">
-          <body className={`antialiased`}>
-            {children}
-            <Toaster richColors />
+        <html
+          className={`antialiased ${geistSans.variable} ${geistMono.variable}`}
+          lang="en"
+        >
+          <body>
+            <NuqsAdapter>
+              {children}
+              <Toaster richColors />
+            </NuqsAdapter>
           </body>
         </html>
       </AuthProvider>

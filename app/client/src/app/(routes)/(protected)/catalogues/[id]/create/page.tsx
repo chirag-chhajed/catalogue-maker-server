@@ -75,7 +75,7 @@ export default function CreateItemForm({
     toast.promise(create({ id, formData }).unwrap(), {
       loading: "Creating Item...",
       success: () => {
-        router.push(`/catalogues/${id}`);
+        router.replace(`/catalogues/${id}`);
         return "Item created successfully";
       },
       error: "Failed to create Item",

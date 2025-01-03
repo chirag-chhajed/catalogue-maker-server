@@ -1,6 +1,6 @@
 "use client";
 
-import { useLogoutMutation } from "@/store/features/api/authApi";
+// import AuthProvider from "@/providers/AuthProvider";
 import { clearState } from "@/store/features/hello";
 import { clearOrganizationId } from "@/store/features/organizationId";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";

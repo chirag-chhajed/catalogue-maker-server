@@ -12,7 +12,7 @@ import { clearOrganizationId } from "../organizationId";
 import type { RootState } from "@/store/store";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:3434/api",
+  baseUrl: `/api`,
   credentials: "include",
   prepareHeaders(headers, api) {
     const token = (api.getState() as RootState).hello.accessToken;

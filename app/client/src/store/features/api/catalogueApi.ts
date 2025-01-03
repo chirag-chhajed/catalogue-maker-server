@@ -72,6 +72,10 @@ const catalogueApi = api.injectEndpoints({
       }),
       invalidatesTags: ["Item"],
     }),
+    getCatalogItemsForShare: builder.query<GetCatalogItems, { id: string }>({
+      query: ({ id }) => `/web/${id}`,
+      providesTags: ["Item"],
+    }),
   }),
 });
 
@@ -84,6 +88,7 @@ export const {
   useGetCatalogQuery,
   useUpdateCatalogItemMutation,
   useUpdateCatalogMutation,
+  useGetCatalogItemsForShareQuery,
 } = catalogueApi;
 type CreateOrgArg = {
   name: string;

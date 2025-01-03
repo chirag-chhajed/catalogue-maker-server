@@ -6,6 +6,7 @@ import { authRouter } from "@/routes/auth.routes.js";
 import { catalogueRouter } from "@/routes/catalogue.routes.js";
 import { invitationsRouter } from "@/routes/invitation.routes.js";
 import { organizationRouter } from "@/routes/organization.route.js";
+import { webRouter } from "@/routes/web.routes.js";
 
 import { pool } from "@/db/client.js";
 
@@ -31,6 +32,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/catalogue", catalogueRouter);
 app.use("/api/organization", organizationRouter);
 app.use("/api/invitation", invitationsRouter);
+app.use("/api/web", webRouter);
 
 app.listen(3434, async () => {
   try {

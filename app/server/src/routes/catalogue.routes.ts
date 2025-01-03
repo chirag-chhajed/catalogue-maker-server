@@ -140,7 +140,7 @@ catalogueRouter.get(
           catalogueItems.price,
         );
 
-      res.status(200).json({ catagoueDetail: catalogueDetail, items });
+      res.status(200).json({ catalogueDetail: catalogueDetail, items });
     } catch (error) {
       logger.error(`Error retriving catalgoue: ${error}`);
       res.status(500).json({ message: "Internal server error" });
