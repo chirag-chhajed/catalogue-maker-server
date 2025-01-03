@@ -10,6 +10,13 @@ import React from "react";
 //   size?: number;
 //   className?: string;
 // }
+const LoadingSpinner = () => (
+  <div className="fixed inset-0 flex justify-center items-center bg-gray-200/80">
+    <div className="animate-spin">
+      <Loader className="animate-spin " stroke="rgb(59 130 246" size={24} />
+    </div>
+  </div>
+);
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const organizationId = useOrganizationIdSelector();
@@ -18,16 +25,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   if (isLoading || isFetching) {
-    return (
-      <div className="min-h-screen flex justify-center items-center bg-gray-200">
-        {/* <LoaderCircleIcon size={48} className="text-blue-500 animate-spin" /> */}
-        <Loader
-          color="rgb(59 130 246 / var(--tw-text-opacity, 1))"
-          className={cn("animate-spin")}
-          size={24}
-        />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return <>{children}</>;
