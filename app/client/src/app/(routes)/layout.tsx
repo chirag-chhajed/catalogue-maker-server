@@ -13,6 +13,7 @@ const RouteLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "logout-event") {

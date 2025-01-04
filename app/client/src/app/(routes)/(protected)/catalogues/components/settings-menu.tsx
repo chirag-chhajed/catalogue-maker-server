@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLogoutMutation } from "@/store/features/api/authApi";
 import { MoreVertical, Settings, HelpCircle, LogOutIcon } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 export default function SettingsMenu() {
@@ -21,9 +22,11 @@ export default function SettingsMenu() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem>
-          <Settings className="mr-2 h-4 w-4" />
-          Settings
+        <DropdownMenuItem asChild>
+          <Link href={"/settings"}>
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
           className="text-red-500"
