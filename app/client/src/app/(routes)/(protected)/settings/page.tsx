@@ -7,11 +7,12 @@ import { InvitationsTab } from "./components/InvitationsTabs";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useUserState } from "@/store/hooks";
+import { hasPermission } from "@/lib/role";
 
 export default function SettingsPage() {
-  //   const [activeTab, setActiveTab] = useState("profile");
   const router = useRouter();
-
+  const user = useUserState();
   const handleBack = () => {
     if (window.history.length > 1) {
       router.back();
@@ -56,9 +57,11 @@ export default function SettingsPage() {
           <TabsContent value="organization" className="mt-6">
             <OrganizationTab />
           </TabsContent>
-          <TabsContent value="invitations" className="mt-6">
-            <InvitationsTab />
-          </TabsContent>
+          {hasPermission(user?.role, "invite:user") ? (
+            <TabsContent value="invitations" className="mt-6">
+              <InvitationsTab />
+            </TabsContent>
+          ) : null}
         </Tabs>
       </div>
     </div>
