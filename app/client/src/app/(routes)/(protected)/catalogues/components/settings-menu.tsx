@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLogoutMutation } from "@/store/features/api/authApi";
-import { MoreVertical, Settings, HelpCircle, LogOutIcon } from "lucide-react";
+import { MoreVertical, Settings, LogOutIcon } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 

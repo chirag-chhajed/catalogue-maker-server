@@ -18,6 +18,9 @@ import { MoreVertical, Edit, Trash } from "lucide-react";
 import EditCatalogueDialog from "./edit-catalogue-dialog";
 import DeleteCatalogueDialog from "./delete-catalogue-dialog";
 import Link from "next/link";
+import { useUserState } from "@/store/hooks";
+import { hasPermission } from "@/lib/role";
+import { format } from "date-fns";
 
 interface Catalogue {
   id: string;
@@ -31,6 +34,8 @@ export default function CatalogueCard({
 }: Readonly<{ catalogue: Catalogue }>) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const user = useUserState();
 
   const pastelColors = [
     "bg-pink-200",
@@ -53,32 +58,33 @@ export default function CatalogueCard({
   };
 
   return (
-    <Link href={`/catalogues/${catalogue.id}`} prefetch={false}>
-      <Card
-        // onClick={() => {
-        //   router.push(`/catalogues/${catalogue.id}`);
-        // }}
-        className="overflow-hidden cursor-pointer"
-      >
+    <>
+      <Card className="overflow-hidden">
         <div className={`${randomColor} h-32`}></div>
         <CardHeader className="flex flex-row justify-between items-start">
-          <CardTitle>{catalogue.name}</CardTitle>
+          <Link href={`/catalogues/${catalogue.id}`} prefetch={false}>
+            <CardTitle className="underline">{catalogue.name}</CardTitle>
+          </Link>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <MoreVertical className="h-5 w-5" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={handleEdit}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDelete}>
-                <Trash className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {hasPermission(user?.role, "update:catalogue") ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <MoreVertical className="h-5 w-5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleEdit}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                {hasPermission(user?.role, "delete:catalogue") ? (
+                  <DropdownMenuItem onClick={handleDelete}>
+                    <Trash className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                ) : null}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : null}
         </CardHeader>
         <CardContent className="px-6 py-0">
           <p
@@ -90,7 +96,7 @@ export default function CatalogueCard({
         </CardContent>
         <CardFooter className="justify-between">
           <span className="text-sm text-gray-500">
-            {new Date(catalogue.createdAt).toLocaleDateString()}
+            {format(new Date(catalogue.createdAt), "dd/MM/yyyy")}
           </span>
         </CardFooter>
       </Card>
@@ -104,6 +110,6 @@ export default function CatalogueCard({
         onClose={() => setIsDeleteDialogOpen(false)}
         catalogueId={catalogue.id}
       />
-    </Link>
+    </>
   );
 }

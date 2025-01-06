@@ -49,6 +49,7 @@ const authApi = api.injectEndpoints({
       async onQueryStarted(_args, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
+
           dispatch(clearState());
           dispatch(clearOrganizationId());
         } catch {

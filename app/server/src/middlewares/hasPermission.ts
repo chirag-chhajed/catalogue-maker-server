@@ -16,7 +16,7 @@ export const requirePermission = (permission: Permission) => {
     );
 
     if (!hasAccess) {
-      res.status(403).json({ message: "You do not have permission" });
+      res.status(400).json({ message: "You do not have permission" });
       return;
     }
 

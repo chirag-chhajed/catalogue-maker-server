@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,27 +8,73 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SlidersHorizontal } from "lucide-react";
+import { catalogueApi } from "@/store/features/api/catalogueApi";
+import { useAppDispatch } from "@/store/hooks";
+import { SlidersHorizontal, Check } from "lucide-react";
+
+type SortOrder = "newest" | "oldest" | null;
 
 export default function FilterSort() {
-  const handleSort = (option: string) => {
-    // Implement sort functionality
-    console.log("Sorting by:", option);
-  };
+  const dispatch = useAppDispatch();
+  const [activeSort, setActiveSort] = useState<SortOrder>(null);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">
+        <Button variant={activeSort ? "secondary" : "outline"}>
           <SlidersHorizontal className="mr-2 h-4 w-4" />
-          Sort
+          {activeSort === "newest"
+            ? "Newest First"
+            : activeSort === "oldest"
+              ? "Oldest First"
+              : "Sort"}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={() => handleSort("date_new_old")}>
+        <DropdownMenuItem
+          onClick={() => {
+            setActiveSort("newest");
+            dispatch(
+              catalogueApi.util.updateQueryData(
+                "getCatalog",
+                undefined,
+                (data) => {
+                  data.sort(
+                    (a, b) =>
+                      new Date(b.createdAt).getTime() -
+                      new Date(a.createdAt).getTime()
+                  );
+                }
+              )
+            );
+          }}
+        >
+          <Check
+            className={`mr-2 h-4 w-4 ${activeSort === "newest" ? "opacity-100" : "opacity-0"}`}
+          />
           Date: Newest to Oldest
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleSort("date_old_new")}>
+        <DropdownMenuItem
+          onClick={() => {
+            setActiveSort("oldest");
+            dispatch(
+              catalogueApi.util.updateQueryData(
+                "getCatalog",
+                undefined,
+                (data) => {
+                  data.sort(
+                    (a, b) =>
+                      new Date(a.createdAt).getTime() -
+                      new Date(b.createdAt).getTime()
+                  );
+                }
+              )
+            );
+          }}
+        >
+          <Check
+            className={`mr-2 h-4 w-4 ${activeSort === "oldest" ? "opacity-100" : "opacity-0"}`}
+          />
           Date: Oldest to Newest
         </DropdownMenuItem>
       </DropdownMenuContent>

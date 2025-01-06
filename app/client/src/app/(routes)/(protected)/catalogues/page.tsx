@@ -1,10 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
-import Link from "next/link";
 import CatalogueList from "./components/catalogue-list";
-import SearchBar from "./components/search-bar";
+// import SearchBar from "./components/search-bar";
 import FilterSort from "./components/filter-sort";
 import SettingsMenu from "./components/settings-menu";
+import { CreateCatalogueButton } from "./components/create-catalogue-button";
 
 export default function CataloguesPage() {
   return (
@@ -15,19 +13,12 @@ export default function CataloguesPage() {
           <SettingsMenu />
         </header>
         <div className="flex justify-between items-center mb-6">
-          <SearchBar />
+          {/* <SearchBar /> */}
           <FilterSort />
         </div>
-
         <CatalogueList />
       </main>
-      <div className="fixed bottom-8 right-8">
-        <Link href="/catalogues/create">
-          <Button size="lg" className="rounded-full w-16 h-16">
-            <PlusIcon className="w-8 h-8" />
-          </Button>
-        </Link>
-      </div>
+      <CreateCatalogueButton />
     </div>
   );
 }

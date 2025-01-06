@@ -12,38 +12,6 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-type Invitation = {
-  id: string;
-  role: "Editor" | "Viewer";
-  status: "Active" | "Expired";
-  inviteCode: string;
-  expiresAt: Date;
-};
-
-// const invitations: Invitation[] = [
-//   {
-//     id: "1",
-//     role: "Editor",
-//     status: "Active",
-//     inviteCode: "ABC123",
-//     expiresAt: new Date("2023-12-31"),
-//   },
-//   {
-//     id: "2",
-//     role: "Viewer",
-//     status: "Expired",
-//     inviteCode: "DEF456",
-//     expiresAt: new Date("2023-01-01"),
-//   },
-//   {
-//     id: "3",
-//     role: "Editor",
-//     status: "Active",
-//     inviteCode: "GHI789",
-//     expiresAt: new Date("2023-12-31"),
-//   },
-// ];
-
 export function InvitationsTab() {
   const [role, setRole] = useState<"editor" | "viewer">("editor");
   const [create, { isLoading }] = useCreateInvitationMutation();
@@ -61,7 +29,6 @@ export function InvitationsTab() {
 
   const handleCopyInviteCode = (inviteCode: string) => {
     navigator.clipboard.writeText(inviteCode);
-    console.log(`Copied invite code: ${inviteCode}`);
   };
 
   return (
@@ -113,7 +80,7 @@ export function InvitationsTab() {
                 )}
               >
                 <CardContent className="p-0">
-                  <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-500 to-blue-500 text-white">
+                  <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#bcd5dd] to-[#dcc4bc] text-white">
                     <Badge>{invitation.role}</Badge>
                     <Badge
                       variant={

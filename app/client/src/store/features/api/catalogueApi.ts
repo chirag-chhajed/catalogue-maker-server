@@ -1,6 +1,6 @@
 import { api } from ".";
 
-const catalogueApi = api.injectEndpoints({
+export const catalogueApi = api.injectEndpoints({
   overrideExisting: false,
   endpoints: (builder) => ({
     createCatalog: builder.mutation<void, CreateOrgArg>({
@@ -94,7 +94,7 @@ type CreateOrgArg = {
   name: string;
   description?: string;
 };
-type GetCatalogues = {
+export type GetCatalogues = {
   name: string;
   description: string | null;
   organizationId: string;

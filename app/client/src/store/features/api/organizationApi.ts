@@ -1,6 +1,6 @@
 import { api } from ".";
 
-const organizationApi = api.injectEndpoints({
+export const organizationApi = api.injectEndpoints({
   overrideExisting: false,
   endpoints: (builder) => ({
     createOrg: builder.mutation<CreateOrgResponse, CreateOrgArg>({

@@ -203,6 +203,10 @@ invitationsRouter.post(
           role: orgInvitations.role,
         })
         .from(orgInvitations)
+        .innerJoin(
+          organizations,
+          eq(orgInvitations.organizationId, organizations.id),
+        )
         .where(
           and(
             eq(orgInvitations.inviteCode, inviteCode),

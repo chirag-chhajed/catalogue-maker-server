@@ -27,7 +27,7 @@ export default function DeleteCatalogueDialog({
   const [deleteCatalog] = useDeleteCatalogMutation();
   const handleDelete = async () => {
     // Implement delete catalogue functionality
-    console.log("Deleting catalogue:", catalogueId);
+    // console.log("Deleting catalogue:", catalogueId);
     toast.promise(deleteCatalog({ id: catalogueId }).unwrap(), {
       loading: "Deleting...",
       success: () => {

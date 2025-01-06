@@ -1,17 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Check } from "lucide-react";
+import { Building2, Check, PlusIcon } from "lucide-react";
 import { useGetOrgsQuery } from "@/store/features/api/organizationApi";
 import { changeOrganizationId } from "@/store/features/organizationId";
 import { store } from "@/store/store";
 import { api } from "@/store/features/api";
 import { useUserState } from "@/store/hooks";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export function OrganizationTab() {
   const { data: organizations } = useGetOrgsQuery();
   const user = useUserState();
-  console.log(user);
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {organizations?.map((org) => (
@@ -62,6 +64,19 @@ export function OrganizationTab() {
           </CardContent>
         </Card>
       ))}
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 flex flex-col gap-4 items-center pb-4">
+        <Link href="/settings/create">
+          <Button size="lg" className="rounded-full w-16 h-16">
+            <PlusIcon className="w-8 h-8" />
+          </Button>
+        </Link>
+        <Link
+          href="/settings/join-form"
+          className="text-blue-600 hover:underline text-center"
+        >
+          Have an invite code to join an organization?
+        </Link>
+      </div>
     </div>
   );
 }

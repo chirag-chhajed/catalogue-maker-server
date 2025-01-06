@@ -28,9 +28,9 @@ export const useOrganizationIdSelector = () => {
   useEffect(() => {
     if (!organizationId) {
       const storedId = localStorage.getItem("user_preferred_org");
-      console.log(
-        `[Init] State organizationId: ${organizationId}, localStorage: ${storedId}`
-      );
+      // console.log(
+      //   `[Init] State organizationId: ${organizationId}, localStorage: ${storedId}`
+      // );
       if (storedId) {
         changeOrganizationId(storedId);
       } else {
@@ -43,9 +43,9 @@ export const useOrganizationIdSelector = () => {
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "user_preferred_org") {
-        console.log(
-          `[Storage Event] New value: ${e.newValue}, Current state: ${organizationId}`
-        );
+        // console.log(
+        //   `[Storage Event] New value: ${e.newValue}, Current state: ${organizationId}`
+        // );
         if (e.newValue) {
           changeOrganizationId(e.newValue);
         } else {

@@ -13,6 +13,7 @@ import { ItemDetails } from "./ItemDetails";
 import { useGetCatalogItemsQuery } from "@/store/features/api/catalogueApi";
 import { useEffect, useState } from "react";
 import { parseAsString, useQueryState } from "nuqs";
+import Link from "next/link";
 
 export function ItemCarousel({
   id,
@@ -82,7 +83,11 @@ export function ItemCarousel({
 
   return (
     <>
-      <h1 className="text-2xl font-bold mb-4">{data?.catalogueDetail?.name}</h1>
+      <Link href={`/catalogues/${id}`} prefetch={false}>
+        <h1 className="text-2xl font-bold mb-4">
+          {data?.catalogueDetail?.name}
+        </h1>
+      </Link>
       <Carousel setApi={setApi} className="w-full min-h-screen">
         <CarouselContent>
           {data?.items?.map((item) => (

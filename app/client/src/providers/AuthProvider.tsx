@@ -11,10 +11,8 @@ import React from "react";
 //   className?: string;
 // }
 const LoadingSpinner = () => (
-  <div className="fixed inset-0 flex justify-center items-center bg-gray-200/80">
-    <div className="animate-spin">
-      <Loader className="animate-spin " stroke="rgb(59 130 246" size={24} />
-    </div>
+  <div className="min-h-screen flex justify-center items-center bg-gray-200/80">
+    <Loader className="animate-spin " stroke="rgb(59 130 246)" size={24} />
   </div>
 );
 

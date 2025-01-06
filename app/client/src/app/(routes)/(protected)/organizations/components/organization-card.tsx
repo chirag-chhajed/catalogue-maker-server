@@ -1,13 +1,9 @@
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useOrganitionIdDispatch } from "@/store/hooks";
 import { useRouter } from "next/navigation";
+import { Building2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Organization = {
   id: string;
@@ -17,48 +13,45 @@ type Organization = {
 };
 
 export default function OrganizationCard({
-  organization,
+  org,
 }: Readonly<{
-  organization: Organization;
+  org: Organization;
 }>) {
-  const pastelColors = [
-    "bg-pink-200",
-    "bg-purple-200",
-    "bg-indigo-200",
-    "bg-blue-200",
-    "bg-green-200",
-    "bg-yellow-200",
-    "bg-red-200",
-  ];
   const { changeOrganizationId } = useOrganitionIdDispatch();
-  const randomColor =
-    pastelColors[Math.floor(Math.random() * pastelColors.length)];
+
   const router = useRouter();
   const roleBadgeColor = {
     admin: "bg-red-100 text-red-800",
     editor: "bg-blue-100 text-blue-800",
     viewer: "bg-green-100 text-green-800",
   };
-
   return (
     <Card
       onClick={() => {
-        changeOrganizationId(organization.id);
+        changeOrganizationId(org.id);
         router.replace("/catalogues");
       }}
       className="overflow-hidden cursor-pointer"
     >
-      <div className={`${randomColor} h-32 flex items-center justify-center`} />
-      <CardHeader>
-        <CardTitle>{organization.name}</CardTitle>
-        <CardDescription>{organization.description}</CardDescription>
+      <CardHeader className="bg-gradient-to-r from-[#2e2906] to-[#f7ded5] text-white">
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Building2 className="w-5 h-5" />
+            {org.name}
+          </div>
+        </CardTitle>
       </CardHeader>
+      <CardContent className="pt-6">
+        <div className="flex flex-col gap-4">
+          <Badge className={cn("w-fit", roleBadgeColor[org.role])}>
+            {org.role}
+          </Badge>
 
-      <CardFooter className="justify-between">
-        <Badge className={roleBadgeColor[organization.role]}>
-          {organization.role}
-        </Badge>
-      </CardFooter>
+          <p className="text-sm text-gray-600 dark:text-gray-300 font-mono">
+            {org.description}
+          </p>
+        </div>
+      </CardContent>
     </Card>
   );
 }

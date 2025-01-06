@@ -20,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { useCreateCatalogItemMutation } from "@/store/features/api/catalogueApi";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useUserState } from "@/store/hooks";
+import { hasPermission } from "@/lib/role";
 
 const schema = z.object({
   name: z
@@ -51,7 +53,7 @@ export default function CreateItemForm({
   params: Promise<{ id: string }>;
 }) {
   const { id } = React.use(params);
-  console.log(id);
+  const user = useUserState();
   const form = useForm<Schema>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -80,6 +82,13 @@ export default function CreateItemForm({
       },
       error: "Failed to create Item",
     });
+  }
+  if (!hasPermission(user?.role, "create:catalogue")) {
+    return (
+      <div>
+        <h1>Unauthorized</h1>
+      </div>
+    );
   }
 
   return (

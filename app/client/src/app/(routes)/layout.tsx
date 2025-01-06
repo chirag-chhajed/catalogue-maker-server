@@ -17,7 +17,7 @@ const RouteLayout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "logout-event") {
-        console.log("Logout event received");
+        // console.log("Logout event received");
         dispatch(clearState());
         dispatch(clearOrganizationId());
         localStorage.removeItem("logout-event");
@@ -43,7 +43,7 @@ export default RouteLayout;
 export const setupLocalStorageListener = () => {
   const handleStorageChange = (e: StorageEvent) => {
     if (e.key === "logout-event") {
-      console.log("Logout event received");
+      // console.log("Logout event received");
       localStorage.removeItem("logout-event");
     }
   };
