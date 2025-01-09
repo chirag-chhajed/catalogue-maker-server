@@ -3,13 +3,15 @@ import {
   index,
   jsonb,
   pgEnum,
-  pgTable,
+  pgTableCreator,
   text,
   timestamp,
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
+
+const pgTable = pgTableCreator((table) => `catalog_maker_${table}`);
 
 export const users = pgTable(
   "users",
