@@ -1,0 +1,23 @@
+# fly.toml app configuration file generated for catalogue-maker on 2025-01-10T13:26:40+05:30
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'catalogue-maker'
+primary_region = 'bom'
+
+[build]
+dockerfile = 'Dockerfile'
+ignorefile = '.dockerignore'
+
+[[vm]]
+memory = '1gb'
+cpu_kind = 'shared'
+cpus = 1
+
+[http_service]
+internal_port = 3434
+force_https = true
+auto_start_machines = true
+auto_stop_machines = "off"
+min_machines_running = 0
