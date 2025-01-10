@@ -16,6 +16,7 @@ import {
 import { useCreateOrgMutation } from "@/store/features/api/organizationApi";
 import * as z from "zod";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function CreateOrganizationPage() {
   const schema = z.object({
@@ -32,7 +33,7 @@ export default function CreateOrganizationPage() {
   });
   type FormValues = z.infer<typeof schema>;
   const [create, { isLoading }] = useCreateOrgMutation();
-
+  const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -46,6 +47,8 @@ export default function CreateOrganizationPage() {
     toast.promise(create(data).unwrap(), {
       loading: "Creating organization...",
       success: () => {
+        router.back();
+        form.reset();
         return "Organization created successfully";
       },
       error: "Failed to create organization",
@@ -74,7 +77,7 @@ export default function CreateOrganizationPage() {
                       Name
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input placeholder="Enter organization name" {...field} />
                     </FormControl>
                     {fieldState.error?.message ? (
                       <FormMessage>{fieldState.error?.message}</FormMessage>
@@ -91,7 +94,7 @@ export default function CreateOrganizationPage() {
                       Description (Optional)
                     </FormLabel>
                     <FormControl>
-                      <Textarea {...field} />
+                      <Textarea placeholder="Enter description" {...field} />
                     </FormControl>
                     {fieldState.error?.message ? (
                       <FormMessage>{fieldState.error?.message}</FormMessage>

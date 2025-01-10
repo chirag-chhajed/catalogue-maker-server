@@ -28,7 +28,14 @@ export function InvitationsTab() {
   };
 
   const handleCopyInviteCode = (inviteCode: string) => {
-    navigator.clipboard.writeText(inviteCode);
+    navigator.clipboard
+      .writeText(inviteCode)
+      .then(() => {
+        toast.success("Copied to Clipboard");
+      })
+      .catch(() => {
+        toast.error("Failed to copy to clipboard");
+      });
   };
 
   return (

@@ -1,3 +1,4 @@
+import { env } from "@/env.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
@@ -34,7 +35,7 @@ app.use("/api/organization", organizationRouter);
 app.use("/api/invitation", invitationsRouter);
 app.use("/api/web", webRouter);
 
-app.listen(3434, async () => {
+app.listen(env.PORT ?? 3434, "0.0.0.0", async () => {
   try {
     await pool.connect();
     logger.info("Connected to the database");

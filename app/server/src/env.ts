@@ -16,6 +16,7 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: z.string().min(1),
     AWS_REGION: z.string().min(1),
     S3_BUCKET_NAME: z.string().min(1),
+    PORT: z.coerce.number().int().optional(),
   },
   runtimeEnv: process.env,
 });
@@ -33,6 +34,7 @@ const envVariables = z.object({
   AWS_SECRET_ACCESS_KEY: z.string().min(1),
   AWS_REGION: z.string().min(1),
   S3_BUCKET_NAME: z.string().min(1),
+  PORT: z.coerce.number().int().optional(),
 });
 
 envVariables.parse(process.env);
