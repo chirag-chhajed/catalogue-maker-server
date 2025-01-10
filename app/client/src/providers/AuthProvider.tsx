@@ -12,7 +12,7 @@ import React from "react";
 // }
 const LoadingSpinner = () => (
   <div className="min-h-screen flex justify-center items-center bg-gray-200/80">
-    <Loader className="animate-spin " stroke="rgb(59 130 246)" size={24} />
+    <Loader className="animate-spin " stroke="rgb(59 130 246)" size={36} />
   </div>
 );
 
