@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: `https://catalogue-maker.fly.dev/api/:path*`,
+        destination: `${env.NEXT_PUBLIC_API_URL}/api/:path*`,
       },
     ];
   },
@@ -17,7 +17,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  trailingSlash: true,
   // https://merapyaraawskabucket.s3.ap-south-1.amazonaws.com/eh98G2YzVfqo/PhNaw9edheORbJlxA5Z__.webp,
   images: {
     remotePatterns: [
